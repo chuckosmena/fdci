@@ -74,7 +74,14 @@ class ContactsController extends Controller
     public function search(Request $request)
     {
         $search = $request->get('search');
-        $contacts = Contact::where('name', 'LIKE', "%{$search}%")->paginate(1);
+        $contacts = Contact::where('created_by', Auth::user()->id)
+            ->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                ->orWhere('company', 'LIKE', "%{$search}%")
+                ->orWhere('phone', 'LIKE', "%{$search}%")
+                ->orWhere('email', 'LIKE', "%{$search}%");
+            })
+        ->paginate(2);
 
         return response()->json($contacts);
     }
